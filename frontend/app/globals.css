@@ -68,9 +68,10 @@
  
 @layer base {
   * {
-    @apply border-[hsl(var(--border))];
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
