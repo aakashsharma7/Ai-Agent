@@ -5,12 +5,56 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Loader2 } from 'lucide-react'
 
 export default function Home() {
   const [jobDescription, setJobDescription] = useState('')
   const [resume, setResume] = useState('')
   const [results, setResults] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
+  const [fileLoading, setFileLoading] = useState(false)
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    setFileError(null)
+    
+    if (!file) {
+      return;
+    }
+    
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setFileError("File size exceeds 5MB limit");
+      return;
+    }
+    
+    // Check file type
+    const allowedTypes = ['.txt', '.doc', '.docx', '.pdf'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    
+    if (!allowedTypes.includes(fileExtension)) {
+      setFileError("Invalid file type. Please upload a .txt, .doc, .docx, or .pdf file");
+      return;
+    }
+    
+    setSelectedFile(file);
+    setFileLoading(true);
+    
+    try {
+      const text = await file.text();
+      setResume(text);
+      setFileError(null);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      setFileError("Failed to read file. Please try again or use a different file.");
+    } finally {
+      setFileLoading(false);
+    }
+  }
 
   const analyzeJob = async () => {
     setLoading(true)
@@ -99,15 +143,39 @@ export default function Home() {
         <Card>
           <CardHeader>
             <CardTitle>Your Resume</CardTitle>
-            <CardDescription>Paste your resume here</CardDescription>
+            <CardDescription>Upload your resume file</CardDescription>
           </CardHeader>
           <CardContent>
-            <Textarea
-              placeholder="Enter your resume..."
-              value={resume}
-              onChange={(e) => setResume(e.target.value)}
-              className="min-h-[200px]"
-            />
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  accept=".txt,.doc,.docx,.pdf"
+                  onChange={handleFileChange}
+                  className="cursor-pointer"
+                  disabled={fileLoading}
+                />
+                {fileLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              </div>
+              
+              {selectedFile && !fileError && (
+                <div className="text-sm text-green-600">
+                  Selected file: {selectedFile.name}
+                </div>
+              )}
+              
+              {fileError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{fileError}</AlertDescription>
+                </Alert>
+              )}
+              
+              {resume && !fileError && (
+                <div className="text-sm text-muted-foreground">
+                  Resume content loaded successfully
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
