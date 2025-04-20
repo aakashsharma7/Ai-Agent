@@ -7,7 +7,7 @@ load_dotenv()
 class JobAnalyzer:
     def __init__(self):
         genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        self.model = genai.GenerativeModel('gemini-pro')
+        self.model = genai.GenerativeModel('gemini-1.5-pro')
 
     async def analyze(self, job_description: str) -> dict:
         """
@@ -30,7 +30,7 @@ class JobAnalyzer:
         """
 
         try:
-            response = await self.model.generate_content(prompt)
+            response = self.model.generate_content(prompt)
             # Parse the response and structure it
             analysis = self._parse_response(response.text)
             return analysis
@@ -41,14 +41,29 @@ class JobAnalyzer:
         """
         Parse the Gemini API response into a structured format.
         """
-        # This is a simplified parser - you might want to enhance it based on actual response format
         try:
-            # Assuming the response is in a format that can be evaluated as a Python dictionary
+            # Remove markdown code block if present
+            if response_text.startswith("```json"):
+                response_text = response_text.replace("```json", "").replace("```", "").strip()
+            elif response_text.startswith("```"):
+                response_text = response_text.replace("```", "").strip()
+            
+            # Parse the JSON response
             import json
-            return json.loads(response_text)
-        except:
-            # Fallback parsing if the response is not in JSON format
+            parsed_response = json.loads(response_text)
+            
+            # Return the parsed response directly
+            return parsed_response
+            
+        except json.JSONDecodeError as e:
+            # If JSON parsing fails, return a structured error response
             return {
-                "raw_analysis": response_text,
-                "error": "Could not parse response into structured format"
+                "error": f"Failed to parse JSON response: {str(e)}",
+                "raw_response": response_text
+            }
+        except Exception as e:
+            # Handle any other unexpected errors
+            return {
+                "error": f"Unexpected error while parsing response: {str(e)}",
+                "raw_response": response_text
             } 
