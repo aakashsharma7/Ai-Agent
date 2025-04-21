@@ -48,6 +48,11 @@ class JobAnalyzer:
             elif response_text.startswith("```"):
                 response_text = response_text.replace("```", "").strip()
             
+            # Remove comments from JSON (not valid JSON syntax)
+            import re
+            response_text = re.sub(r'//.*?\n', '\n', response_text)  # Remove single-line comments
+            response_text = re.sub(r'/\*.*?\*/', '', response_text, flags=re.DOTALL)  # Remove multi-line comments
+            
             # Parse the JSON response
             import json
             parsed_response = json.loads(response_text)
