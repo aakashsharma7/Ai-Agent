@@ -257,7 +257,82 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <pre className="whitespace-pre-wrap">{JSON.stringify(results, null, 2)}</pre>
+                  {activeTab === 'analyze' && results.analysis && !results.error ? (
+                    <div className="space-y-4">
+                      {results.analysis["Key Responsibilities"] && (
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">Key Responsibilities</h3>
+                          <ul className="list-disc pl-5 space-y-1">
+                            {results.analysis["Key Responsibilities"].map((item: string, index: number) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {results.analysis["Required Skills and Qualifications"] && (
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">Required Skills and Qualifications</h3>
+                          <ul className="list-disc pl-5 space-y-1">
+                            {results.analysis["Required Skills and Qualifications"].map((item: string, index: number) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {results.analysis["Preferred Skills and Qualifications"] && (
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">Preferred Skills and Qualifications</h3>
+                          <ul className="list-disc pl-5 space-y-1">
+                            {results.analysis["Preferred Skills and Qualifications"].map((item: string, index: number) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {results.analysis["Industry and Role Type"] && (
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">Industry and Role Type</h3>
+                          <ul className="list-disc pl-5 space-y-1">
+                            {results.analysis["Industry and Role Type"].map((item: string, index: number) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {results.analysis["Experience Level"] && (
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">Experience Level</h3>
+                          <ul className="list-disc pl-5 space-y-1">
+                            {Array.isArray(results.analysis["Experience Level"]) 
+                              ? results.analysis["Experience Level"].map((item: string, index: number) => (
+                                  <li key={index}>{item}</li>
+                                ))
+                              : <li>{results.analysis["Experience Level"]}</li>
+                            }
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {results.analysis["Key Keywords for Optimization"] && (
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">Key Keywords for Optimization</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {results.analysis["Key Keywords for Optimization"].map((item: string, index: number) => (
+                              <span key={index} className="px-2 py-1 bg-primary/10 rounded-md text-sm">
+                                {item}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <pre className="whitespace-pre-wrap">{JSON.stringify(results, null, 2)}</pre>
+                  )}
                 </motion.div>
               )}
             </CardContent>
