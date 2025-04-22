@@ -1,15 +1,8 @@
-import google.generativeai as genai
-import os
-from dotenv import load_dotenv
+from typing import Dict, Any
+from .base_ai_service import BaseAIService
 
-load_dotenv()
-
-class JobAnalyzer:
-    def __init__(self):
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        self.model = genai.GenerativeModel('gemini-1.5-pro')
-
-    async def analyze(self, job_description: str) -> dict:
+class JobAnalyzer(BaseAIService):
+    async def analyze(self, job_description: str) -> Dict[str, Any]:
         """
         Analyze a job description and extract key information.
         """
@@ -27,13 +20,19 @@ class JobAnalyzer:
         6. Key keywords for optimization
         
         Format the response as a JSON object with these categories.
+        Each category should be a list of items except for Experience Level which should be a single string.
         """
 
         try:
-            response = self.model.generate_content(prompt)
-            # Parse the response and structure it
-            analysis = self._parse_response(response.text)
-            return analysis
+            # Generate cache key based on job description
+            cache_key = f"job_analysis_{hash(job_description)}"
+            
+            # Get response from AI model
+            response_text = await self._generate_response(prompt, cache_key)
+            
+            # Parse and return the structured response
+            return self._parse_json_response(response_text)
+            
         except Exception as e:
             raise Exception(f"Error analyzing job description: {str(e)}")
 
