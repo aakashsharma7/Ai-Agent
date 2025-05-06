@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     
     # AI Model Settings
     GEMINI_MODEL: str = "gemini-1.5-pro"
+    GEMINI_API_KEY: str
     
     # Cache Settings
     CACHE_TTL: int = 3600  # 1 hour
